@@ -8,26 +8,30 @@ services:
     build: ./backend
     environment:
       - STORAGE=mysql
-      - MYSQL_HOST=database
-      - MYSQL_USER=abdil
-      - MYSQL_PWD=my-secret-pw
+      - MYSQL_HOST=database  
       - MYSQL_DB=mydb
     depends_on:
       - database
     env_file:
       - ./backend/.env
+    networks:
+      - layer1
+      - layer2
   database:
     image: mysql:8.0.30-debian
     ports:
       - "3307:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=my-secret-pw
-      - MYSQL_USER=abdil
       - MYSQL_DATABASE=mydb
-      - MYSQL_PASSWORD=my-secret-pw
+
     volumes:
       - ./sqlscripts:/docker-entrypoint-initdb.d
       - dbdata:/var/lib/mysql
+      env_file:
+      - .env
+      networks:
+      - layer2
 
 volumes:
   dbdata:
