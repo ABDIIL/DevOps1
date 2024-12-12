@@ -1,0 +1,44 @@
+services:
+  frontend:
+    build: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - layer1
+
+  backend:
+    build: ./backend
+    environment:
+      - STORAGE=mysql
+      - MYSQL_HOST=database
+      - MYSQL_DB=mydb
+    depends_on:
+      - database
+    env_file:
+      - ./backend/.env
+    networks:
+      - layer1  # Verwijzing naar gedefinieerd netwerk
+      - layer2  # Als je dit netwerk nog steeds wilt gebruiken
+
+  database:
+    image: mysql:8.0.30-debian
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-secret-pw
+      - MYSQL_DATABASE=mydb
+    volumes:
+      - ./sqlscripts:/docker-entrypoint-initdb.d
+      - dbdata:/var/lib/mysql
+    networks:
+      - layer2  # Dit netwerk is gedefinieerd in de netwerken sectie
+
+volumes:
+  dbdata:
+
+networks:
+  layer1:   # Het netwerk layer1 moet hier worden gedefinieerd
+  layer2:
+
